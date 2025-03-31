@@ -54,7 +54,7 @@ app.use((err, req, res, next) => {
 });
 
 // Run Express on a specific port
-const expressPort = 5014;
+const expressPort = 5018;
 app.listen(expressPort, () => {
   console.log(`Express server running on http://localhost:${expressPort}`);
   console.log(`PDF to Blog service is ready to convert PDFs to blog posts`);

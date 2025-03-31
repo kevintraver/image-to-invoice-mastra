@@ -59,7 +59,7 @@ router.use(cors({
 const upload = multer({ 
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 10 * 1024 * 1024
+    fileSize: 50 * 1024 * 1024
   },
   fileFilter: (req, file, cb) => {
     if (file.mimetype === 'application/pdf') {
