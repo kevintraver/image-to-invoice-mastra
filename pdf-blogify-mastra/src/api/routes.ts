@@ -2,11 +2,10 @@ import express, { Request, Response } from 'express';
 import multer from 'multer';
 import cors from 'cors';
 import { pdfToBlogWorkflow } from '../mastra/workflow/pdfToBlogWorkflow';
-import { File as MulterFile } from 'multer';
 
 // Define custom request interface for file uploads
 interface FileUploadRequest extends Request {
-  file?: MulterFile;
+  file?: Express.Multer.File;
 }
 
 interface ImageData {
@@ -81,34 +80,39 @@ router.post('/upload-pdf', upload.single('pdf'), async (req: FileUploadRequest, 
 
     const pdf = req.file.buffer;
 
-    console.log('Starting PDF to blog workflow...');
+    console.log('Received PDF, starting workflow...');
     
     const { start } = pdfToBlogWorkflow.createRun();
     const result = await start({ triggerData: { pdfFile: pdf } });
     
-    console.log('Workflow completed. Processing results...');
+    console.log('Workflow finished. Processing results...');
     
+    // Check which step succeeded and get its output
+    let blogPost;
+    let generatorSource = 'Unknown step';
     
-    const processPdfStep = result?.results?.['process-pdf-to-blog'];
+    // Try to get result from each step in order of preference
+    const steps = ['generate-blog-post', 'fallback-blog-post', 'final-fallback'];
     
-
-    if (processPdfStep?.status !== 'success' || !processPdfStep.output) {
-      console.error('Blog post generation failed or has invalid result structure', JSON.stringify(result, null, 2));
+    for (const step of steps) {
+      if (result?.results?.[step]?.status === 'success') {
+        const stepOutput = result.results[step].output;
+        // We need to check both the success flag AND if blogPost exists
+        if ((stepOutput?.success !== false) && stepOutput?.blogPost) {
+          blogPost = stepOutput.blogPost;
+          generatorSource = step;
+          console.log(`Using output from successful step: ${step}`);
+          break;
+        }
+      }
+    }
+    
+    // If no successful step was found
+    if (!blogPost) {
+      console.error('Workflow Error: No step produced a valid blog post. Full result:', JSON.stringify(result, null, 2));
       res.status(500).send('Failed to generate blog post content');
       return;
     }
-    
-    const blogPost = processPdfStep.output.blogPost;
-    
-    if (!blogPost) {
-      console.error('Blog post is empty or undefined');
-      res.status(500).send('Generated blog post is empty');
-      return;
-    }
-    
-    console.log('Blog post generated successfully, length:', blogPost.length);
-    console.log('First 200 characters of blog post:');
-    console.log(blogPost.substring(0, 200) + '...');
     
     const response: ApiResponse = {
       pages: [{
@@ -123,22 +127,20 @@ router.post('/upload-pdf', upload.single('pdf'), async (req: FileUploadRequest, 
         metadata: {
           source: req.file.originalname,
           generatedAt: new Date().toISOString(),
-          generator: 'Mastra AI + Mistral OCR'
+          generator: `Mastra AI - ${generatorSource}`
         }
       }],
-      model: "mistral-ocr-v1.0",
+      model: "mistral-ocr-v1.0", 
       usage_info: {
-        pages_processed: 1,
+        pages_processed: 1, 
         doc_size_bytes: req.file.size
       }
     };
 
-    console.log('Sending response:', JSON.stringify(response, null, 2));
-
     res.json(response);
     
   } catch (error) {
-    console.error('Error processing PDF:', error);
+    console.error('API Route Error in /upload-pdf:', error);
     res.status(500).send(`Error processing PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 });

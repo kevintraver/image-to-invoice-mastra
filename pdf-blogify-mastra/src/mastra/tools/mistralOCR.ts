@@ -50,24 +50,23 @@ async function processOCR(pdf: Buffer): Promise<{ extractedText: string; pagesCo
       purpose: 'ocr',
     });
 
-    
+    // Get signed URL for uploaded file
     const signedURL = await client.files.getSignedUrl({ fileId: uploadedFile.id });
 
-    
+    // Process OCR
     const ocrResponse = await client.ocr.process({
       model: 'mistral-ocr-latest',
       document: { type: 'document_url', documentUrl: signedURL.url },
       includeImageBase64: true,
     });
 
-    
+    // Validate OCR response
     if (!ocrResponse || !ocrResponse.pages || !Array.isArray(ocrResponse.pages)) {
       throw new Error('Invalid OCR response format');
     }
 
     // Extract text from pages
     let extractedText = '';
-    
     for (const page of ocrResponse.pages) {
       if (page.markdown) {
         extractedText += page.markdown + '\n\n';
@@ -79,12 +78,11 @@ async function processOCR(pdf: Buffer): Promise<{ extractedText: string; pagesCo
       pagesCount: ocrResponse.pages.length,
     };
   } catch (error) {
-    console.error('Error processing OCR:', error);
     throw new Error(`OCR processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
-
+// Removed console logs from the OCR tool
 export async function extractTextFromPDF(pdf: Buffer): Promise<string> {
   const result = await processOCR(pdf);
   return result.extractedText;
