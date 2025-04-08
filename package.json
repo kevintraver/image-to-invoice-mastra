@@ -4,7 +4,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "mastra dev"
+    "dev": "mastra dev",
+    "build": "mastra build",
+    "start": "node .mastra/dist/index.js"
   },
   "keywords": [],
   "author": "",
@@ -14,7 +16,7 @@
   "dependencies": {
     "@ai-sdk/google": "^1.2.2",
     "@ai-sdk/mistral": "^1.2.0",
-    "@mastra/core": "^0.6.4",
+    "@mastra/core": "^0.8.0",
     "@mistralai/mistralai": "^1.5.2",
     "cors": "^2.8.5",
     "form-data": "^4.0.2",
@@ -28,6 +30,7 @@
     "@types/express": "^5.0.1",
     "@types/multer": "^1.4.12",
     "@types/node": "^22.13.11",
+    "cross-env": "^7.0.3",
     "express": "^4.21.2",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2"
