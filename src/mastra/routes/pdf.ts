@@ -1,7 +1,8 @@
 import type { Context } from 'hono';
+import { pdfToBlogWorkflow } from '../workflow/pdfToBlogWorkflow';
 
 export const uploadPdfRoute = {
-  path: '/upload-pdf',
+  path: '/api/upload-pdf',
   method: 'POST' as const,
   handler: async (c: Context) => {
     try {
@@ -22,7 +23,7 @@ export const uploadPdfRoute = {
       const mastraInstance = c.get('mastra');
       
       // Start the workflow
-      const { start } = mastraInstance.getWorkflow('pdfToBlogWorkflow').createRun();
+      const { start } = pdfToBlogWorkflow.createRun();
       const result = await start({ triggerData: { pdfFile: buffer } });
       
       console.log('Workflow finished. Processing results...');
@@ -78,7 +79,7 @@ export const uploadPdfRoute = {
       
       return c.json(response);
     } catch (error) {
-      console.error('API Route Error in /api/upload-pdf:', error);
+      console.error('API Route Error in backend/src/mastra/routes/pdf.ts:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       return c.json({ error: `Error processing PDF: ${errorMessage}` }, 500);
     }
