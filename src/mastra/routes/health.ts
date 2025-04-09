@@ -1,7 +1,7 @@
 import type { Context } from 'hono';
 
 export const healthRoute = {
-  path: '/health', // Path is already correct, no change needed here
+  path: '/health',
   method: 'GET' as const,
   handler: (c: Context) => {
     return c.json({ 

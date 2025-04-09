@@ -4,7 +4,7 @@ import { pdfToBlogWorkflow } from './workflow/pdfToBlogWorkflow';
 import { corsMiddleware } from './middleware/cors';
 import { uploadPdfRoute, healthRoute } from './routes';
 
-// Initialize Mastra with our agent, workflow, and server configuration
+
 export const mastra = new Mastra({
   agents: {
     blogPostAgent,
@@ -13,14 +13,13 @@ export const mastra = new Mastra({
     pdfToBlogWorkflow,
   },
   server: {
-    port: Number(process.env.PORT) || 4111, // Use environment variable or fallback
-    timeout: 300000, // 5 minutes to handle larger PDFs
+    port: Number(process.env.PORT) || 4111, 
+    timeout: 300000, 
     middleware: [corsMiddleware],
     apiRoutes: [uploadPdfRoute, healthRoute]
   }
 });
 
-// Set development environment
 if (process.env.NODE_ENV !== 'production') {
   process.env.NODE_ENV = 'development';
 }

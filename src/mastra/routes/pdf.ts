@@ -13,32 +13,26 @@ export const uploadPdfRoute = {
         return c.json({ error: 'No PDF file uploaded. Use key "pdf" in form-data.' }, 400);
       }
       
-      // Convert File to Buffer
       const arrayBuffer = await pdfFile.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
       
       console.log('Received PDF, starting workflow...');
       
-      // Get instance of mastra
-      const mastraInstance = c.get('mastra');
-      
-      // Start the workflow
       const { start } = pdfToBlogWorkflow.createRun();
       const result = await start({ triggerData: { pdfFile: buffer } });
       
       console.log('Workflow finished. Processing results...');
       
-      // Check which step succeeded and get its output
+      
       let blogPost;
       let generatorSource = 'Unknown step';
       
-      // Try to get result from each step in order of preference
       const steps = ['generate-blog-post', 'fallback-blog-post', 'final-fallback'];
       
       for (const step of steps) {
         if (result?.results?.[step]?.status === 'success') {
           const stepOutput = result.results[step].output;
-          // We need to check both the success flag AND if blogPost exists
+         
           if ((stepOutput?.success !== false) && stepOutput?.blogPost) {
             blogPost = stepOutput.blogPost;
             generatorSource = step;
@@ -48,7 +42,7 @@ export const uploadPdfRoute = {
         }
       }
       
-      // If no successful step was found
+
       if (!blogPost) {
         console.error('Workflow Error: No step produced a valid blog post.', result);
         return c.json({ error: 'Failed to generate blog post content' }, 500);

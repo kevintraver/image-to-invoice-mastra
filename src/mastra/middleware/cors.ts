@@ -7,7 +7,7 @@ const corsOrigins = process.env.FRONTEND_URL
 export const corsMiddleware = async (c: Context, next: Next) => {
   const origin = c.req.header('origin');
   
-  // Handle CORS
+  
   if (origin && corsOrigins.includes(origin)) {
     c.header('Access-Control-Allow-Origin', origin);
   } else {
@@ -19,7 +19,7 @@ export const corsMiddleware = async (c: Context, next: Next) => {
   c.header('Access-Control-Allow-Credentials', 'true');
   c.header('Access-Control-Max-Age', '86400');
   
-  // Handle preflight with correct status code
+
   if (c.req.method === 'OPTIONS') {
     return new Response('', { status: 204 });
   }
