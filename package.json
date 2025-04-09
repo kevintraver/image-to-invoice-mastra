@@ -16,13 +16,13 @@
   "dependencies": {
     "@ai-sdk/google": "^1.2.2",
     "@ai-sdk/mistral": "^1.2.0",
-    "@mastra/core": "^0.8.1",
+    "@mastra/core": "^0.8.2",
     "@mistralai/mistralai": "^1.5.2",
     "cors": "^2.8.5",
     "express-fileupload": "^1.4.3",
     "form-data": "^4.0.2",
     "import-in-the-middle": "^1.13.1",
-    "mastra": "^0.4.7",
+    "mastra": "^0.4.8",
     "multer": "^1.4.5-lts.2",
     "node-fetch": "^2.7.0",
     "zod": "^3.24.2"
