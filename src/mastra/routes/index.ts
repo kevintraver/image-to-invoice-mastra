@@ -1,4 +1,5 @@
 export { uploadPdfHandler } from './pdf';
+export { uploadInvoiceHandler } from './invoice';
 export { healthRoute } from './health';
 
 export type MastraRoute = {
